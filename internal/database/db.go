@@ -1,13 +1,20 @@
 package database
 
-import "database/sql"
+import (
+	"database/sql"
+	"log"
+)
 
 type Queries struct {
-  db *sql.DB
+	db *sql.DB
 }
 
 func New(db *sql.DB) *Queries {
-  Initialize(db)
+	for _, query := range tableQueries {
+		if _, err := db.Exec(query); err != nil {
+			log.Fatal("Error creating tables: ", err)
+		}
+	}
 
-  return &Queries{db: db}
+	return &Queries{db: db}
 }

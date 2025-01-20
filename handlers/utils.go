@@ -5,5 +5,5 @@ import (
 )
 
 type Config struct {
-  DB *database.Queries
+	DB *database.Queries
 }

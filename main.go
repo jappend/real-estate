@@ -16,53 +16,54 @@ import (
 )
 
 func main() {
-  // Initializing environment variables
-  err := godotenv.Load() 
-  if err != nil {
-    log.Fatal(err)
-  }
+	// Initializing environment variables
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-  // Opening a connection to the database
-  var (
-    user string = os.Getenv("PGUSER")
-    password string = os.Getenv("PGPASSWORD")
-    host string = os.Getenv("PGHOST")
-    port string = os.Getenv("PGPORT")
-    dbname string = os.Getenv("PGDATABASE")
-  ) 
-  connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", user, password, host, port ,dbname)
+	// Opening a connection to the database
+	var (
+		user     string = os.Getenv("PGUSER")
+		password string = os.Getenv("PGPASSWORD")
+		host     string = os.Getenv("PGHOST")
+		port     string = os.Getenv("PGPORT")
+		dbname   string = os.Getenv("PGDATABASE")
+	)
+	connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", user, password, host, port, dbname)
 
-  log.Printf("Opening connection with database %s on port %s...\n", dbname, port)
-  db, err := sql.Open("postgres", connStr)
-  if err != nil {
-    log.Fatal("Error opening database connection: ", err)
-  }
+	log.Printf("Opening connection with database %s on port %s...\n", dbname, port)
+	db, err := sql.Open("postgres", connStr)
+	if err != nil {
+		log.Fatal("Error opening database connection: ", err)
+	}
+	defer db.Close()
 
-  if err := db.Ping(); err != nil {
-    log.Fatal("Error pinging database: ", err)
-  }
-  log.Println("Database connection opened successefuly!")
+	if err := db.Ping(); err != nil {
+		log.Fatal("Error pinging database: ", err)
+	}
+	log.Println("Database connection opened successefuly!")
 
-  dbQueries := database.New(db)
-  handlersConfig := handlers.Config{
-    DB: dbQueries,
-  }
+	dbQueries := database.New(db)
+	handlersConfig := handlers.Config{
+		DB: dbQueries,
+	}
 
-  config := fiber.Config{
-    AppName: "Real Estate",
-    ReadTimeout: 30 * time.Second,
-    WriteTimeout: 90 * time.Second,
-    IdleTimeout: 120 * time.Second,
-  } 
+	config := fiber.Config{
+		AppName:      "Real Estate",
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 90 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
 
 	app := fiber.New(config)
-  app.Use(logger.New(logger.Config{
-    Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
-  }))
+	app.Use(logger.New(logger.Config{
+		Format: "[${ip}]:${port} ${status} - ${method} ${path}\n",
+	}))
 
-  // Routes
-  // Users
-  app.Post("/users", handlersConfig.UsersCreate)
+	// Routes
+	// Users
+	app.Post("/users", handlersConfig.UsersCreate)
 
-  log.Fatal(app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))))
+	log.Fatal(app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))))
 }

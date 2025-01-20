@@ -7,15 +7,19 @@ import (
 )
 
 type User struct {
-  ID uuid.UUID
-  CreatedAt time.Time
-  UpdatedAt time.Time
-  Name string
-  Email string
-  Password string
-  IsAdm bool
-  IsActive bool
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Name      string
+	Email     string
+	Password  string
+	IsAdm     bool
+	IsActive  bool
 }
+
+var createUUIDExtensionQuery = `
+  CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+`
 
 var usersTableQuery = `
   CREATE TABLE IF NOT EXISTS users(
@@ -30,4 +34,4 @@ var usersTableQuery = `
   );	  
   `
 
-var tableQueries = []string{usersTableQuery}
+var tableQueries = []string{createUUIDExtensionQuery, usersTableQuery}
