@@ -1,7 +1,10 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	"jappend/real_estate/handlers"
+	"jappend/real_estate/internal/database"
 	"log"
 	"os"
 	"time"
@@ -9,6 +12,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 func main() {
@@ -16,6 +20,32 @@ func main() {
   err := godotenv.Load() 
   if err != nil {
     log.Fatal(err)
+  }
+
+  // Opening a connection to the database
+  var (
+    user string = os.Getenv("PGUSER")
+    password string = os.Getenv("PGPASSWORD")
+    host string = os.Getenv("PGHOST")
+    port string = os.Getenv("PGPORT")
+    dbname string = os.Getenv("PGDATABASE")
+  ) 
+  connStr := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", user, password, host, port ,dbname)
+
+  log.Printf("Opening connection with database %s on port %s...\n", dbname, port)
+  db, err := sql.Open("postgres", connStr)
+  if err != nil {
+    log.Fatal("Error opening database connection: ", err)
+  }
+
+  if err := db.Ping(); err != nil {
+    log.Fatal("Error pinging database: ", err)
+  }
+  log.Println("Database connection opened successefuly!")
+
+  dbQueries := database.New(db)
+  handlersConfig := handlers.Config{
+    DB: dbQueries,
   }
 
   config := fiber.Config{
@@ -31,10 +61,8 @@ func main() {
   }))
 
   // Routes
-  app.Get("/helloworld", func(c *fiber.Ctx) error {
-    c.Status(fiber.StatusOK).JSON("Hello World!")
-    return nil
-  })
+  // Users
+  app.Post("/users", handlersConfig.UsersCreate)
 
   log.Fatal(app.Listen(fmt.Sprintf(":%s", os.Getenv("PORT"))))
 }
