@@ -54,6 +54,21 @@ func main() {
 		ReadTimeout:  30 * time.Second,
 		WriteTimeout: 90 * time.Second,
 		IdleTimeout:  120 * time.Second,
+		ErrorHandler: func(c *fiber.Ctx, err error) error {
+			type serverError struct {
+				Message string `json:"message"`
+			}
+
+			if fe, ok := err.(*fiber.Error); ok {
+				return c.Status(fe.Code).JSON(serverError{
+					Message: fe.Message,
+				})
+			}
+
+			return c.Status(fiber.StatusInternalServerError).JSON(serverError{
+				Message: err.Error(),
+			})
+		},
 	}
 
 	app := fiber.New(config)
