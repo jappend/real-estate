@@ -34,9 +34,10 @@ func (cfg *Config) UsersCreate(c *fiber.Ctx) error {
 
 	params := parameters{}
 	if err := c.BodyParser(&params); err != nil {
+		log.Println(err)
 		return &fiber.Error{
 			Code:    fiber.StatusBadRequest,
-			Message: "Error parsing body in request",
+			Message: "Unknown error",
 		}
 	}
 
@@ -52,9 +53,10 @@ func (cfg *Config) UsersCreate(c *fiber.Ctx) error {
 	// Hashing password
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(params.Password), 12)
 	if err != nil {
+		log.Println(err)
 		return &fiber.Error{
 			Code:    fiber.StatusInternalServerError,
-			Message: "Couldn't encrypt",
+			Message: "Unknown error",
 		}
 	}
 
@@ -72,7 +74,7 @@ func (cfg *Config) UsersCreate(c *fiber.Ctx) error {
 		log.Println(err)
 		return &fiber.Error{
 			Code:    fiber.StatusInternalServerError,
-			Message: "Unknown error, something went wrong",
+			Message: "Unknown error",
 		}
 	}
 
