@@ -30,7 +30,6 @@ func (cfg *Config) UsersCreate(c *fiber.Ctx) error {
 		Email    string `json:"email" validate:"required,email"`
 		Password string `json:"password" validate:"required,password"`
 		IsAdm    bool   `json:"is_adm"`
-		IsActive bool   `json:"is_active"`
 	}
 
 	params := parameters{}
@@ -38,7 +37,7 @@ func (cfg *Config) UsersCreate(c *fiber.Ctx) error {
 		log.Println(err)
 		return &fiber.Error{
 			Code:    fiber.StatusBadRequest,
-			Message: "Unknown error",
+			Message: "Error parsing body in request",
 		}
 	}
 
@@ -73,7 +72,6 @@ func (cfg *Config) UsersCreate(c *fiber.Ctx) error {
 		Email:     params.Email,
 		Password:  string(hashedPassword),
 		IsAdm:     params.IsAdm,
-		IsActive:  params.IsActive,
 	})
 
 	if err != nil {

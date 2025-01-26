@@ -37,9 +37,9 @@ func (q *Queries) CheckDuplicatedEmail(userEmail string) bool {
 }
 
 func (q *Queries) CreateUser(arg CreateUserParam) (User, error) {
-	query := "INSERT INTO users(created_at, updated_at, name, email, password, is_adm, is_active) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id, created_at, updated_at, name, email, password, is_adm, is_active;"
+	query := "INSERT INTO users(created_at, updated_at, name, email, password, is_adm) VALUES($1, $2, $3, $4, $5, $6) RETURNING id, created_at, updated_at, name, email, password, is_adm, is_active;"
 
-	row := q.db.QueryRow(query, arg.CreatedAt, arg.UpdatedAt, arg.Name, arg.Email, arg.Password, arg.IsAdm, arg.IsActive)
+	row := q.db.QueryRow(query, arg.CreatedAt, arg.UpdatedAt, arg.Name, arg.Email, arg.Password, arg.IsAdm)
 
 	var user User
 

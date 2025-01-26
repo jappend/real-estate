@@ -10,7 +10,7 @@ var usersTableQuery = `
     name VARCHAR NOT NULL,
     email VARCHAR UNIQUE NOT NULL,
     is_adm BOOLEAN NOT NULL,
-    Is_active BOOLEAN NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
     password VARCHAR NOT NULL,
     created_at DATE NOT NULL,
     updated_at DATE NOT NULL
