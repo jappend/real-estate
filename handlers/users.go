@@ -26,9 +26,9 @@ func (cfg *Config) UsersCreate(c *fiber.Ctx) error {
 	c.Accepts("application/json")
 
 	type parameters struct {
-		Name     string `json:"name"`
-		Email    string `json:"email"`
-		Password string `json:"password"`
+		Name     string `json:"name" validate:"required"`
+		Email    string `json:"email" validate:"required,email"`
+		Password string `json:"password" validate:"required"`
 		IsAdm    bool   `json:"is_adm"`
 		IsActive bool   `json:"is_active"`
 	}
@@ -42,8 +42,13 @@ func (cfg *Config) UsersCreate(c *fiber.Ctx) error {
 		}
 	}
 
-	// Checking duplicate emails
+	errors := cfg.Validator.ValidateData(params)
+	if errors != nil {
+		c.Status(fiber.StatusBadRequest).JSON(errors)
+		return nil
+	}
 
+	// Checking duplicate emails
 	if cfg.DB.CheckDuplicatedEmail(params.Email) {
 		return &fiber.Error{
 			Code:    fiber.StatusBadRequest,
