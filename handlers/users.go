@@ -28,7 +28,7 @@ func (cfg *Config) UsersCreate(c *fiber.Ctx) error {
 	type parameters struct {
 		Name     string `json:"name" validate:"required"`
 		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required"`
+		Password string `json:"password" validate:"required,password"`
 		IsAdm    bool   `json:"is_adm"`
 		IsActive bool   `json:"is_active"`
 	}

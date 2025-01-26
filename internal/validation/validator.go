@@ -20,6 +20,8 @@ type ErrorResponse struct {
 }
 
 func New(validate *validator.Validate) *Validator {
+	validate.RegisterValidation("password", passwordValidation)
+
 	return &Validator{
 		Validate: validate,
 	}
@@ -58,6 +60,8 @@ func structValidation(validate *validator.Validate, data interface{}) []ErrorRes
 				errResp.ErrorMessage = fmt.Sprintf("The '%s' field is required.", errResp.FailedField)
 			case "email":
 				errResp.ErrorMessage = "The 'email' field needs to be a valid email."
+			case "password":
+				errResp.ErrorMessage = "The 'password' field needs to have at least 8 characters in length, at least one symbol, one lowercased letter, one uppercased letter and one number."
 			}
 
 			validationErrors = append(validationErrors, errResp)
