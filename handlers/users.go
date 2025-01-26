@@ -4,6 +4,7 @@ import (
 	_ "crypto"
 	"jappend/real_estate/internal/database"
 	"log"
+	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -78,11 +79,11 @@ func (cfg *Config) UsersCreate(c *fiber.Ctx) error {
 		}
 	}
 
-	c.Status(fiber.StatusCreated).JSON(handleUserReturnOnCreation(user))
+	c.Status(fiber.StatusCreated).JSON(databaseUserToHandleUser(user))
 	return nil
 }
 
-func handleUserReturnOnCreation(user database.User) User {
+func databaseUserToHandleUser(user database.User) User {
 	return User{
 		ID:        user.ID,
 		CreatedAt: user.CreatedAt,
@@ -92,4 +93,51 @@ func handleUserReturnOnCreation(user database.User) User {
 		IsAdm:     user.IsAdm,
 		IsActive:  user.IsActive,
 	}
+}
+
+func (cfg *Config) UsersListAllinDB(c *fiber.Ctx) error {
+	c.Accepts("application/json")
+
+	offset := c.Query("offset", "0")
+	limit := c.Query("limit", "10")
+
+	offsetInt, err := strconv.Atoi(offset)
+	if err != nil {
+		return &fiber.Error{
+			Code:    fiber.StatusBadRequest,
+			Message: "Offset query param has to be a valid integer",
+		}
+	}
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		return &fiber.Error{
+			Code:    fiber.StatusBadRequest,
+			Message: "Limit query param has to be a valid integer",
+		}
+	}
+
+	users, err := cfg.DB.ListAllUsersInDB(database.ListAllUsersParams{
+		Offset: offsetInt,
+		Limit:  limitInt,
+	})
+	if err != nil {
+		log.Println(err)
+		return &fiber.Error{
+			Code:    fiber.StatusInternalServerError,
+			Message: "Error getting users from database",
+		}
+	}
+
+	c.Status(fiber.StatusOK).JSON(databaseUsersSliceToHandleUserSlice(users))
+	return nil
+}
+
+func databaseUsersSliceToHandleUserSlice(users []database.User) []User {
+	result := make([]User, len(users))
+	for i, user := range users {
+		result[i] = databaseUserToHandleUser(user)
+	}
+
+	return result
 }

@@ -22,4 +22,5 @@ func routerInitializer(app *fiber.App) {
 	// Routes
 	// Users
 	app.Post("/users", handlersConfig.UsersCreate)
+	app.Get("/users", handlersConfig.UsersListAllinDB)
 }

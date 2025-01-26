@@ -1,7 +1,6 @@
 package database
 
 import (
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -45,9 +44,34 @@ func (q *Queries) CreateUser(arg CreateUserParam) (User, error) {
 	var user User
 
 	if err := row.Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt, &user.Name, &user.Email, &user.Password, &user.IsAdm, &user.IsActive); err != nil {
-		log.Println("Scan failed!")
 		return User{}, err
 	}
 
 	return user, nil
+}
+
+type ListAllUsersParams struct {
+	Offset int
+	Limit  int
+}
+
+func (q *Queries) ListAllUsersInDB(arg ListAllUsersParams) ([]User, error) {
+	query := "SELECT id, created_at, updated_at, name, email, password, is_adm, is_active FROM users OFFSET $1 LIMIT $2;"
+
+	rows, err := q.db.Query(query, arg.Offset, arg.Limit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []User
+	for rows.Next() {
+		var user User
+		if err := rows.Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt, &user.Name, &user.Email, &user.Password, &user.IsAdm, &user.IsActive); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+
+	return users, nil
 }
