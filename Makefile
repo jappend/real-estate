@@ -8,6 +8,10 @@ run: fmt
 		air
 .PHONY:run
 
+test:
+	go test ./...
+.PHONY:test
+
 build: fmt
 	go build -o real-estate
 .PHONY:build
