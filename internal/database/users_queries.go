@@ -36,6 +36,17 @@ func (q *Queries) CheckDuplicatedEmail(userEmail string) bool {
 	return email != ""
 }
 
+func (q *Queries) ReturnUserByEmail(userEmail string) User {
+	query := "SELECT id, created_at, updated_at, name, email, password, is_adm, is_active FROM users WHERE email = $1"
+
+	var user User
+	row := q.db.QueryRow(query, userEmail)
+
+	row.Scan(&user.ID, &user.CreatedAt, &user.UpdatedAt, &user.Name, &user.Email, &user.Password, &user.IsAdm, &user.IsActive)
+
+	return user
+}
+
 func (q *Queries) CreateUser(arg CreateUserParam) (User, error) {
 	query := "INSERT INTO users(created_at, updated_at, name, email, password, is_adm) VALUES($1, $2, $3, $4, $5, $6) RETURNING id, created_at, updated_at, name, email, password, is_adm, is_active;"
 
