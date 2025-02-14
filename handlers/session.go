@@ -12,18 +12,18 @@ import (
 )
 
 func createToken(id uuid.UUID, isAdm *bool) (string, error) {
-  token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-    "uuid": id,
-    "isAdm": isAdm,
-    "exp": time.Now().Add(time.Hour * 24).Unix(),
-  })
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"uuid":  id,
+		"isAdm": isAdm,
+		"exp":   time.Now().Add(time.Hour * 24).Unix(),
+	})
 
-  tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
-  if err != nil {
-    return "", err
-  }
+	tokenString, err := token.SignedString([]byte(os.Getenv("SECRET_KEY")))
+	if err != nil {
+		return "", err
+	}
 
-  return tokenString, nil
+	return tokenString, nil
 }
 
 func (cfg *Config) LoginHandler(c *fiber.Ctx) error {
@@ -59,28 +59,28 @@ func (cfg *Config) LoginHandler(c *fiber.Ctx) error {
 		}
 	}
 
-  if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(params.Password)); err != nil {
-    return &fiber.Error{
-      Code: fiber.StatusBadRequest,
-      Message: "Wrong password!",
-    }
-  }
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(params.Password)); err != nil {
+		return &fiber.Error{
+			Code:    fiber.StatusBadRequest,
+			Message: "Wrong password!",
+		}
+	}
 
-  // Generating token
-  token, err := createToken(user.ID, &user.IsAdm)
-  if err != nil {
-    return &fiber.Error{
-      Code: fiber.StatusInternalServerError,
-      Message: "Couldn't generate JWT Token",
-    }
-  }
+	// Generating token
+	token, err := createToken(user.ID, &user.IsAdm)
+	if err != nil {
+		return &fiber.Error{
+			Code:    fiber.StatusInternalServerError,
+			Message: "Couldn't generate JWT Token",
+		}
+	}
 
-  tokenReturn := struct {
-    Token string `json:"token"`
-  }{
-    Token: token,
-  }
+	tokenReturn := struct {
+		Token string `json:"token"`
+	}{
+		Token: token,
+	}
 
-  c.Status(fiber.StatusOK).JSON(tokenReturn)
+	c.Status(fiber.StatusOK).JSON(tokenReturn)
 	return nil
 }
