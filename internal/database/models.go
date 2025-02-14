@@ -1,20 +1,18 @@
 package database
 
-var createUUIDExtensionQuery = `
-  CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-`
+import (
+	"time"
 
-var usersTableQuery = `
-  CREATE TABLE IF NOT EXISTS users(
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR NOT NULL,
-    email VARCHAR UNIQUE NOT NULL,
-    is_adm BOOLEAN NOT NULL,
-    is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    password VARCHAR NOT NULL,
-    created_at DATE NOT NULL,
-    updated_at DATE NOT NULL
-  );	  
-  `
+	"github.com/google/uuid"
+)
 
-var tableQueries = []string{createUUIDExtensionQuery, usersTableQuery}
+type User struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Name      string
+	Email     string
+	Password  string
+	IsAdm     bool
+	IsActive  bool
+}
