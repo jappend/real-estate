@@ -20,6 +20,11 @@ type TestRunner struct {
   TestDB string
 }
 
+type testCases struct {
+	name string
+	test func(*testing.T)
+}
+
 var testRunner TestRunner
 
 func TestMain(m *testing.M) {
@@ -183,3 +188,20 @@ func connectToDefaultDB() (*sql.DB, error) {
 	log.Println("Connected to default 'postgres' database successfully!")
 	return defaultDB, nil
 }
+
+func runTestCasesInParallel(t *testing.T, tests []testCases) {
+	// Create a channel and loop all test cases to run then in parallel
+	done := make(chan struct{})
+	for _, tc := range tests {
+		go func() {
+			t.Run(tc.name, tc.test)
+			done <- struct{}{}
+		}()
+	}
+
+	// Wait for all tests to complete
+	for range tests {
+		<-done
+	}
+}
+
